@@ -2,32 +2,38 @@ import dictionary from "./data.js";
 let translatedPlace = document.getElementById("translatePlace");
 // we got input's value where in HTML in txt-field
 
+function gettingValue(isChangeable = false, setterValue = "") {
+  let inputValue = document.getElementById("title");
+  if (isChangeable) {
+    document.getElementsByTagName("input")[0].value = setterValue;
+    return inputValue.value;
+  }
+  return inputValue.value;
+}
 document.getElementById("submit").onclick = () => {
-  let inputValue = document.getElementById("title").value;
-
-  if (validation(inputValue)) {
-    let preparedWords = dictionary.split("\n");
-    let res = [];
-
-    preparedWords.forEach((item) => {
-      if (item.includes(inputValue)) {
-        res.push({
-          tm: item.split(" - ")[0],
-          ru: item.split(" - ")[1].split(";"),
-        });
-      }
-      return res;
-    });
-
-    console.log(getFields(res, "tm"));
-    console.log(getFields(res, "ru").flat(100));
-    console.log(myCreateElement(getFields(res, "tm"), getFields(res, "ru")));
+  if (validation(gettingValue())) {
+    proccesingUI();
+    gettingValue(true, "");
   } else {
-    alert("write a TEXT PLEASE");
+    alert("write a text please");
+    gettingValue(true, "");
+  }
+};
+
+document.getElementsByTagName("input")[0].onkeydown = (e) => {
+  if (e.key.toLowerCase() === "enter") {
+    if (validation(gettingValue())) {
+      proccesingUI();
+      gettingValue(true, "");
+    } else {
+      alert("write a text please");
+      gettingValue(true, "");
+    }
   }
 };
 
 function validation(value) {
+  console.log(value);
   return (
     value &&
     typeof value === "string" &&
@@ -36,32 +42,48 @@ function validation(value) {
   );
 }
 
-function myCreateElement(valueTM, valueRU) {
-  let getplace = document.getElementById("translatePlace"),
-    ul,
-    h3,
-    li;
-  for (let c = 0; c < valueTM.length; c++) {
-    ul = document.createElement("ul");
-    getplace.appendChild(ul);
+function searchElement(array, searchItem) {
+  let res = [];
 
-    for (let i = 0; i < valueTM.length; i++) {
-      h3 = document.createElement("h3");
-      h3.innerHTML = valueTM[i];
-      ul.appendChild(h3);
-
-      for (let j = 0; j < valueRU.length; j++) {
-        li = document.createElement("li");
-        li.innerHTML = valueRU[j];
-        ul.appendChild(li);
-      }
+  array.forEach((item) => {
+    if (item.includes(searchItem)) {
+      res.push({
+        tm: item.split(" - ")[0],
+        ru: item.split(" - ")[1].split(";"),
+      });
     }
-  }
-}
-function getFields(input, field) {
-  var output = [];
-  for (var i = 0; i < input.length; ++i) output.push(input[i][field]);
-  return output;
+  });
+  return res;
 }
 
-// console.log(searchElement(dictionary.split("\n"), "salam"));
+function proccesingUI() {
+  let grandParent = document.getElementById("translatePlace");
+  let container = document.getElementById("sozluk");
+  grandParent.remove();
+  grandParent = document.createElement("div");
+  grandParent.className = "translatePlace";
+  grandParent.id = "translatePlace";
+
+  container.append(grandParent);
+  let preparedWords = dictionary.split("\n");
+
+  let filtered = searchElement(preparedWords, gettingValue());
+
+  console.log(filtered);
+  filtered.forEach((item) => {
+    let parent = document.createElement("div");
+    let h3 = document.createElement("h3");
+    let list = document.createElement("ul");
+    h3.innerText = item.tm;
+    parent.append(h3);
+
+    item.ru.forEach((item1) => {
+      let li = document.createElement("li");
+      li.innerText = item1;
+      list.append(li);
+    });
+
+    parent.append(list);
+    grandParent.append(parent);
+  });
+}

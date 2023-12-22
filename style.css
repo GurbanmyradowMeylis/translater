@@ -70,10 +70,10 @@ button[value="submit"]:hover {
   font-weight: 900;
 }
 
-.translatePlace ul li {
+.translatePlace div ul li {
   color: white;
   font-weight: bolder;
 }
-.translatePlace ul li::marker {
+.translatePlace div ul li::marker {
   color: white;
 }
